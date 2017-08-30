@@ -6,7 +6,8 @@ const {
   existsSync,
   readFileSync,
   writeFileSync,
-  chmodSync
+  chmodSync,
+  unlinkSync
 } = require('fs');
 const which = require('which');
 
@@ -15,7 +16,7 @@ const bin = rawArgv[2];
 const args = rawArgv.slice(3);
 if (typeof bin === 'undefined') {
   return console.log(`
-  Usage: hookd <bin> [bin options]
+  Usage: hkd <bin> [bin options]
 `);
 }
 which(bin, function(err, resolvedPath) {
@@ -27,7 +28,7 @@ which(bin, function(err, resolvedPath) {
     let content = readFileSync(realPath, 'utf8');
     content = content.replace(
       '#!/usr/bin/env node',
-      '#!/usr/bin/env node --inspect --debug-brk'
+      '#!/usr/bin/env node --nolazy --inspect --debug-brk'
     );
     const filename = basename(realPath);
     const debugBin = resolve(dirname(realPath), `${filename}.debug`);
@@ -39,8 +40,12 @@ which(bin, function(err, resolvedPath) {
       cwd: process.cwd(),
       env: process.env
     });
-    p.on('error', function(error){
+    p.on('error', function(error) {
       console.log(error);
+      unlinkSync(debugBin);
+    });
+    p.on('exit', function() {
+      unlinkSync(debugBin);
     });
   }
 });

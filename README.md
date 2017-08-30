@@ -15,7 +15,7 @@ $ npm i -g hookdebug
 ## Usage
 
 ```
-  Usage: hookd <bin> [bin options]
+  Usage: hkd <bin> [bin options]
 ```
 
 ### Examples
